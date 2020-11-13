@@ -1,16 +1,26 @@
 [tool.poetry]
 name = "hexlet_code"
 version = "0.1.0"
-description = ""
+description = "The Page loader"
 authors = ["agmrv <airatgum@gmail.com>"]
 packages = [
     { include = "page_loader" },
 ]
+classifiers = [
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "Natural Language :: English",
+  "Topic :: Utilities",
+]
+repository = "https://github.com/agmrv/python-project-lvl3"
 
 [tool.poetry.dependencies]
 python = "^3.8"
 
 [tool.poetry.dev-dependencies]
+flake8 = "^3.8.4"
+pytest-cov = "^2.10.1"
+pytest = "^6.1.2"
 
 [tool.poetry.scripts]
 page-loader = "page_loader.scripts.page_loader:main"
