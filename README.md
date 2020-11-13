@@ -4,3 +4,15 @@
 
 ### Hexlet tests and linter status:
 ![Actions Status](/workflows/hexlet-check/badge.svg)
+
+# Hello!
+
+## This is the Python Project lvl 3 - The Page Loader
+
+### In [these](#videos) videos below you will see how to *install** the 'Page Loader' package and how to use it.
+*to install this package run the command:
+`pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple agmrv-page-loader`
+
+## Videos:
+### Install and example for flat JSON files:
+<a href="https://asciinema.org/a/p5PLICUICkCca1LAUdwLa3QMV" target="_blank"><img src="https://asciinema.org/a/p5PLICUICkCca1LAUdwLa3QMV.svg" width="600" ></a>

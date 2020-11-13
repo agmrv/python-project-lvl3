@@ -15,4 +15,7 @@ check: selfcheck lint test
 build: check
 	poetry build
 
+publish: build
+	poetry publish -r test_pypi
+
 .PHONY: install lint test selfcheck check build publish

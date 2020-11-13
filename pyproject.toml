@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "hexlet_code"
+name = "agmrv-page-loader"
 version = "0.1.0"
 description = "The Page loader"
 authors = ["agmrv <airatgum@gmail.com>"]
@@ -16,6 +16,7 @@ repository = "https://github.com/agmrv/python-project-lvl3"
 
 [tool.poetry.dependencies]
 python = "^3.8"
+requests = "^2.25.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
