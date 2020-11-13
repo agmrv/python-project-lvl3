@@ -19,7 +19,7 @@ def test_generate_filename(url, expected_filename):
     assert generate_filename(url) == expected_filename
 
 
-@pytest.mark.parametrize('url, filename', test_data, ids=['1', '2', '3'])
+@pytest.mark.parametrize('url, filename', test_data, ids=['test_data1', 'test_data2', 'test_data3'])
 def test_load_page(url, filename):
     with tempfile.TemporaryDirectory() as temp_dict:
         filepath = path.join(temp_dict, filename)
