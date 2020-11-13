@@ -15,7 +15,7 @@ classifiers = [
 repository = "https://github.com/agmrv/python-project-lvl3"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.6"
 requests = "^2.25.0"
 
 [tool.poetry.dev-dependencies]
