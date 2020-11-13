@@ -14,5 +14,5 @@
 `pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple agmrv-page-loader`
 
 ## Videos:
-### Install and example for flat JSON files:
-<a href="https://asciinema.org/a/p5PLICUICkCca1LAUdwLa3QMV" target="_blank"><img src="https://asciinema.org/a/p5PLICUICkCca1LAUdwLa3QMV.svg" width="600" ></a>
+### Install and load 'https://hexlet.io/courses':
+<a href="https://asciinema.org/a/yduBwsZcHuon1t20dKRbwZfg9" target="_blank"><img src="https://asciinema.org/a/yduBwsZcHuon1t20dKRbwZfg9.svg" width="600" ></a>
