@@ -15,7 +15,7 @@ check: selfcheck lint test
 build: check
 	poetry build
 
-publish: build
-	poetry publish -r test_pypi
+package-install: build
+	pip install --user dist/*.whl
 
 .PHONY: install lint test selfcheck check build publish
