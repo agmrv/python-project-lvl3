@@ -4,7 +4,7 @@ from os import path
 import pytest
 # import requests
 
-from page_loader.io import generate_filename, load_page
+from page_loader.io import generate_filename, download
 
 
 test_data = [
@@ -20,8 +20,8 @@ def test_generate_filename(url, expected_filename):
 
 
 @pytest.mark.parametrize('url, filename', test_data, ids=['test_data1', 'test_data2', 'test_data3'])
-def test_load_page(url, filename):
+def test_download(url, filename):
     with tempfile.TemporaryDirectory() as temp_dict:
         filepath = path.join(temp_dict, filename)
-        load_page(temp_dict, url)
+        download(temp_dict, url)
         assert path.exists(filepath)
