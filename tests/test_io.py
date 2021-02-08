@@ -26,6 +26,3 @@ def test_download(url, filename):
         filepath = path.join(temp_dict, filename)
         download(temp_dict, url)
         assert path.exists(filepath)
-
-
-test_text2
