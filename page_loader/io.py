@@ -7,18 +7,18 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 
+# poetry run page-loader --output /home/agmrv/python-project-lvl3/tmp https://hexlet.io/courses
+
 
 def download(url, output_path):
-
     if not path.exists(output_path):
         raise FileExistsError(f"directory '{output_path}' not found")
     elif not path.isdir(output_path):
         raise ValueError(f"'{output_path}' is not a directory")
 
     parsed_url = urlparse(url)
-    netloc = parsed_url.netloc
 
-    filename = generate_filename(netloc, parsed_url.path)
+    filename = generate_filename(parsed_url)
     filepath = path.join(output_path, f"{filename}.html")
     dirpath = path.join(output_path, f"{filename}_files")
 
@@ -27,7 +27,7 @@ def download(url, output_path):
     imgs = soup.find_all("img")
     for img in imgs:
         print(img.get("src"))
-        # src = img.get("src")
+        src = img.get("src")
         root, ext = path.splitext(url)
         img["src"] = generate_filename(netloc, root)
     for img in imgs:
@@ -47,11 +47,10 @@ def download(url, output_path):
     return filepath
 
 
-def generate_filename(netloc, some_path):
-
-    raw_filename = f"{netloc}-{some_path}"
+def generate_filename(parsed_url):
+    netloc, path = parsed_url.netloc, parsed_url.path
+    raw_filename = f"{netloc}-{path}"
     filename = normilize_str(raw_filename)
-
     return filename
 
 
