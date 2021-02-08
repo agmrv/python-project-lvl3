@@ -58,3 +58,6 @@ def normilize_str(string):
     parts = re.split(r"[^\da-zA-Z]", string)
     normilized_str = "-".join(filter(None, parts))
     return normilized_str
+
+
+test_text3
