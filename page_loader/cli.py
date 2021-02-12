@@ -7,14 +7,14 @@ def parse_args():
     Returns:
         the arguments from CLI
     """
-    parser = argparse.ArgumentParser(description='Page Loader')
-    parser.add_argument('url', type=str)
+    parser = argparse.ArgumentParser(description="Page Loader")
+    parser.add_argument("url", type=str)
     parser.add_argument(
-        '--output',
+        "--output",
         default=os.getcwd(),
-        help='set the output path',
-        metavar='PATH',
-        dest='output',
+        help="set the output path",
+        metavar="PATH",
+        dest="output",
     )
 
     return parser.parse_args()
