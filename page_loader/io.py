@@ -41,7 +41,7 @@ def download(url, output_path):
 
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
-    download_resources(soup, files_dirpath, netloc, url)
+    download_resources(soup, files_dirpath, dirname, netloc, url)
 
     with open(filepath, "w") as file_object:
         file_object.write(soup.prettify())
@@ -49,7 +49,7 @@ def download(url, output_path):
     return filepath
 
 
-def download_resources(soup, files_dirpath, netloc, url):
+def download_resources(soup, files_dirpath, dirname, netloc, url):
     imgs = soup.find_all("img")
     for img in imgs:
         src = img.get("src")
@@ -62,4 +62,4 @@ def download_resources(soup, files_dirpath, netloc, url):
         with open(img_filepath, "wb") as file_object:
             file_object.write(requests.get(url + src).content)
 
-        img["src"] = img_filepath
+        img["src"] = "{0}/{1}".format(dirname, img_filename)
