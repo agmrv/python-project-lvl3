@@ -5,22 +5,16 @@ from urllib.parse import urlparse
 
 import requests
 
-# from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 
 # poetry run page-loader
 # --output /home/agmrv/python-project-lvl3/tmp https://hexlet.io/courses
 
 
-def generate_filename(parsed_url) -> str:
-    netloc, path = parsed_url.netloc, parsed_url.path
-    raw_filename = f"{netloc}-{path}"
+def generate_filenames(netloc, raw_path) -> str:
+    raw_filename = f"{netloc}-{raw_path}"
     filename = normilize_str(raw_filename)
-    return filename
-
-    # root, ext = path.splitext(url)
-    # if ext in {'.jpg', '.png'}:
-    #     filename = normilize_str(root)
-    #     return f'{filename}{ext}'
+    return f"{filename}.html", f"{filename}_files"
 
 
 def normilize_str(string: str) -> str:
@@ -36,24 +30,36 @@ def download(url, output_path):
     elif not path.isdir(output_path):
         raise ValueError(f"'{output_path}' is not a directory")
 
-    filename = generate_filename(urlparse(url))
-    filepath = path.join(output_path, f"{filename}.html")
-    dirpath = path.join(output_path, f"{filename}_files")
+    parsed_url = urlparse(url)
+    netloc, raw_path = parsed_url.netloc, parsed_url.path
+    filename, dirname = generate_filenames(netloc, raw_path)
+    filepath = path.join(output_path, filename)
+    files_dirpath = path.join(output_path, dirname)
+
+    if not path.exists(files_dirpath):
+        mkdir(files_dirpath)
 
     response = requests.get(url)
-    # soup = BeautifulSoup(response.content, "html.parser")
-
-    # imgs = soup.find_all("img")
-    # for img in imgs:
-    #     print(img.get("src"))
-    #     src = img.get("src")
-    #     root, ext = path.splitext(url)
-    #     img["src"] = generate_filename(netloc, root)
-
-    if not path.exists(dirpath):
-        mkdir(dirpath)
+    soup = BeautifulSoup(response.content, "html.parser")
+    download_resources(soup, files_dirpath, netloc, url)
 
     with open(filepath, "w") as file_object:
-        file_object.write(response.text)
+        file_object.write(soup.prettify())
 
     return filepath
+
+
+def download_resources(soup, files_dirpath, netloc, url):
+    imgs = soup.find_all("img")
+    for img in imgs:
+        src = img.get("src")
+        root, ext = path.splitext(src)
+        img_filename = "{0}-{1}{2}".format(
+            normilize_str(netloc), normilize_str(root), ext
+        )
+        img_filepath = path.join(files_dirpath, img_filename)
+
+        with open(img_filepath, "wb") as file_object:
+            file_object.write(requests.get(url + src).content)
+
+        img["src"] = img_filepath
