@@ -12,8 +12,6 @@ def main():
         print(exists_error)
     except ValueError as value_error:
         print(value_error)
-    # else:
-    #     print(file_path)
 
 
 if __name__ == "__main__":
