@@ -44,7 +44,7 @@ def download(url, output_path):
     download_resources(soup, files_dirpath, dirname, netloc, url)
 
     with open(filepath, "w") as file_object:
-        file_object.write(soup.prettify())
+        file_object.write(soup.prettify(formatter="html5"))
 
     return filepath
 

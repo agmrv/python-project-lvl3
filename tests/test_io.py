@@ -104,7 +104,7 @@ def test_download_page_content(
             filepath = download(url, temp_dir)
             soup = BeautifulSoup(page_after, "html.parser")
             with open(filepath, "r") as current_content:
-                assert current_content.read() == soup.prettify()
+                assert current_content.read() == soup.prettify(formatter="html5")
 
             for content_path, expected_file in expected_content_paths:
                 filepath = path.join(temp_dir, content_path)
