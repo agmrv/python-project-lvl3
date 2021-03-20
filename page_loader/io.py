@@ -13,10 +13,10 @@ from bs4 import BeautifulSoup
 tags = {"script": "src", "link": "href", "img": "src"}
 
 
-def generate_filenames(netloc, raw_path) -> str:
+def generate_filename(netloc, raw_path) -> str:
     raw_filename = f"{netloc}-{raw_path}"
     filename = normilize_str(raw_filename)
-    return f"{filename}.html", f"{filename}_files"
+    return filename
 
 
 def normilize_str(string: str) -> str:
@@ -34,7 +34,8 @@ def download(url, output_path):
 
     parsed_url = urlparse(url)
     netloc, raw_path = parsed_url.netloc, parsed_url.path
-    filename, dirname = generate_filenames(netloc, raw_path)
+    name = generate_filename(netloc, raw_path)
+    filename, dirname = f"{name}.html", f"{name}_files"
     filepath = path.join(output_path, filename)
     files_dirpath = path.join(output_path, dirname)
 
@@ -56,14 +57,21 @@ def download_resources(soup, files_dirpath, dirname, netloc, url):
         src = resource.get(tags.get(resource.name))
         root, ext = path.splitext(src)
         resource_filename = "{0}-{1}{2}".format(
-            normilize_str(netloc), normilize_str(root), ext
+            normilize_str(netloc),
+            normilize_str(urlparse(root).path),
+            ext or ".html",
         )
-        resource_filepath = path.join(files_dirpath, resource_filename)
+        resource[tags.get(resource.name)] = "{0}/{1}".format(
+            dirname,
+            resource_filename,
+        )
 
+        if not ext:
+            continue
+
+        resource_filepath = path.join(files_dirpath, resource_filename)
         with open(resource_filepath, "wb") as file_object:
             file_object.write(requests.get(urljoin(url, src)).content)
-
-        resource[tags.get(resource.name)] = "{0}/{1}".format(dirname, resource_filename)
 
 
 def is_local(element, local_url):

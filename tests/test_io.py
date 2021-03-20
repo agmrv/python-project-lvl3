@@ -3,12 +3,11 @@ import tempfile
 from os import path
 from urllib.parse import urlparse, urljoin
 
-import requests
 import pytest
 import requests_mock
 from bs4 import BeautifulSoup
 
-from page_loader.io import generate_filenames, download
+from page_loader.io import generate_filename, download
 
 
 def read_html(path: str) -> str:
@@ -22,22 +21,16 @@ def read_img(path: str) -> bytes:
 
 
 test_filenames_data = [
-    (
-        "https://hexlet.io/courses/",
-        ("hexlet-io-courses.html", "hexlet-io-courses_files"),
-    ),
-    ("https://ru.hexlet.io/", ("ru-hexlet-io.html", "ru-hexlet-io_files")),
-    (
-        "https://ru.hexlet.io/courses",
-        ("ru-hexlet-io-courses.html", "ru-hexlet-io-courses_files"),
-    ),
+    ("https://hexlet.io/courses/", "hexlet-io-courses"),
+    ("https://ru.hexlet.io/", "ru-hexlet-io"),
+    ("https://ru.hexlet.io/courses", "ru-hexlet-io-courses"),
 ]
 
 test_download_data = [
     (
         "https://ru.hexlet.io/courses/",
-        read_html("tests/fixtures/page_before.html"),
-        read_html("tests/fixtures/page_after.html"),
+        read_html("tests/fixtures/complex_page_before.html"),
+        read_html("tests/fixtures/complex_page_after.html"),
         [
             (
                 "ru-hexlet-io-courses_files/ru-hexlet-io-tests-fixtures-pizza-slice.png",
@@ -57,6 +50,12 @@ test_download_data = [
                 "/tests/fixtures/robin.jpg",
                 read_img("tests/fixtures/robin.jpg"),
             ),
+            ("https://cdn2.hexlet.io/assets/menu.css", ""),
+            ("/assets/aplication.css", ""),
+            ("/courses", ""),
+            ("/professions/nodejs", ""),
+            ("https://js.stripe.com/v3/", ""),
+            ("https://ru.hexlet.io/packs/js/runtime.js", ""),
         ],
     ),
 ]
@@ -66,16 +65,16 @@ test_download_data = [
 def test_generate_filename(url, expected_filenames):
     parsed_url = urlparse(url)
     netloc, raw_path = parsed_url.netloc, parsed_url.path
-    assert generate_filenames(netloc, raw_path) == expected_filenames
+    assert generate_filename(netloc, raw_path) == expected_filenames
 
 
 @pytest.mark.parametrize(
-    "url, filenames",
+    "url, name",
     test_filenames_data,
 )
-def test_create_file_and_directory(url, filenames):
+def test_create_file_and_directory(url, name):
     with tempfile.TemporaryDirectory() as temp_dir:
-        filename, dirname = filenames
+        filename, dirname = f"{name}.html", f"{name}_files"
         expected_filepath = path.join(temp_dir, filename)
         expected_dirpath = path.join(temp_dir, dirname)
 
@@ -97,15 +96,21 @@ def test_download_page_content(
 ):
     with tempfile.TemporaryDirectory() as temp_dir:
         with requests_mock.Mocker() as mock:
+            for src, expected_content in srcs:
+                if expected_content:
+                    mock.get(urljoin(url, src), content=expected_content)
+                else:
+                    mock.get(urljoin(url, src))
+
             mock.get(url, text=page_before)
 
-            for src, expected_content in srcs:
-                mock.get(urljoin(url, src), content=expected_content)
-
             filepath = download(url, temp_dir)
-            soup = BeautifulSoup(page_after, "html.parser")
+            expected_soup = BeautifulSoup(page_after, "html.parser")
             with open(filepath, "r") as downloaded_page:
-                assert downloaded_page.read() == soup.prettify(formatter="html5")
+                soup = BeautifulSoup(downloaded_page.read(), "html.parser")
+                assert soup.prettify(formatter="html5") == expected_soup.prettify(
+                    formatter="html5"
+                )
 
             for content_path, expected_file in expected_content_paths:
                 filepath = path.join(temp_dir, content_path)
@@ -113,66 +118,3 @@ def test_download_page_content(
 
                 with open(filepath, "rb") as file_object:
                     assert file_object.read() == expected_file
-
-
-some_content = bytes(123)
-tags = {"script": "src", "link": "href", "img": "src"}
-srcs = [
-    (
-        "/tests/fixtures/pizza-slice.png",
-        read_img("tests/fixtures/pizza-slice.png"),
-    ),
-    (
-        "/tests/fixtures/robin.jpg",
-        read_img("tests/fixtures/robin.jpg"),
-    ),
-    (
-        "https://cdn2.hexlet.io/assets/menu.css",
-        some_content,
-    ),
-    (
-        "/assets/aplication.css",
-        some_content,
-    ),
-    (
-        "/courses",
-        some_content,
-    ),
-    (
-        "/professions/nodejs",
-        some_content,
-    ),
-    (
-        "https://js.stripe.com/v3/",
-        some_content,
-    ),
-    (
-        "https://ru.hexlet.io/packs/js/runtime.js",
-        some_content,
-    ),
-]
-
-with tempfile.TemporaryDirectory() as temp_dir:
-
-    with requests_mock.Mocker() as mock:
-        for src, expected_content in srcs:
-            mock.get(
-                urljoin("https://ru.hexlet.io/courses", src), content=expected_content
-            )
-
-        mock.get(
-            "https://ru.hexlet.io/courses",
-            text=read_html("tests/fixtures/complex_page_before.html"),
-        )
-
-        filepath = download("https://ru.hexlet.io/courses", temp_dir)
-
-        soup = BeautifulSoup(
-            read_html("tests/fixtures/complex_page_after.html"), "html.parser"
-        )
-
-        with open(filepath, "r") as downloaded_page:
-            print(downloaded_page.read())
-            print("\n")
-            print(soup.prettify(formatter="html5"))
-            assert downloaded_page.read() == soup.prettify(formatter="html5")
