@@ -1,14 +1,16 @@
 # coding=utf-8
 import re
 from os import path, mkdir
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 import requests
 
 from bs4 import BeautifulSoup
 
 # poetry run page-loader
-# --output /home/agmrv/python-project-lvl3/tmp https://hexlet.io/courses
+# --output /home/agmrv/python-project-lvl3/tmp https://ru.hexlet.io/courses
+
+tags = {"script": "src", "link": "href", "img": "src"}
 
 
 def generate_filenames(netloc, raw_path) -> str:
@@ -42,7 +44,6 @@ def download(url, output_path):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
     download_resources(soup, files_dirpath, dirname, netloc, url)
-
     with open(filepath, "w") as file_object:
         file_object.write(soup.prettify(formatter="html5"))
 
@@ -50,16 +51,21 @@ def download(url, output_path):
 
 
 def download_resources(soup, files_dirpath, dirname, netloc, url):
-    imgs = soup.find_all("img")
-    for img in imgs:
-        src = img.get("src")
+    resources = filter(lambda r: is_local(r, url), soup.find_all(tags.keys()))
+    for resource in resources:
+        src = resource.get(tags.get(resource.name))
         root, ext = path.splitext(src)
-        img_filename = "{0}-{1}{2}".format(
+        resource_filename = "{0}-{1}{2}".format(
             normilize_str(netloc), normilize_str(root), ext
         )
-        img_filepath = path.join(files_dirpath, img_filename)
+        resource_filepath = path.join(files_dirpath, resource_filename)
 
-        with open(img_filepath, "wb") as file_object:
-            file_object.write(requests.get(url + src).content)
+        with open(resource_filepath, "wb") as file_object:
+            file_object.write(requests.get(urljoin(url, src)).content)
 
-        img["src"] = "{0}/{1}".format(dirname, img_filename)
+        resource[tags.get(resource.name)] = "{0}/{1}".format(dirname, resource_filename)
+
+
+def is_local(element, local_url):
+    element_url = urljoin(local_url, element.get(tags.get(element.name)))
+    return urlparse(element_url).netloc == urlparse(local_url).netloc

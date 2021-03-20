@@ -1,8 +1,9 @@
 # coding=utf-8
 import tempfile
 from os import path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
+import requests
 import pytest
 import requests_mock
 from bs4 import BeautifulSoup
@@ -99,12 +100,12 @@ def test_download_page_content(
             mock.get(url, text=page_before)
 
             for src, expected_content in srcs:
-                mock.get(url + src, content=expected_content)
+                mock.get(urljoin(url, src), content=expected_content)
 
             filepath = download(url, temp_dir)
             soup = BeautifulSoup(page_after, "html.parser")
-            with open(filepath, "r") as current_content:
-                assert current_content.read() == soup.prettify(formatter="html5")
+            with open(filepath, "r") as downloaded_page:
+                assert downloaded_page.read() == soup.prettify(formatter="html5")
 
             for content_path, expected_file in expected_content_paths:
                 filepath = path.join(temp_dir, content_path)
@@ -112,3 +113,66 @@ def test_download_page_content(
 
                 with open(filepath, "rb") as file_object:
                     assert file_object.read() == expected_file
+
+
+some_content = bytes(123)
+tags = {"script": "src", "link": "href", "img": "src"}
+srcs = [
+    (
+        "/tests/fixtures/pizza-slice.png",
+        read_img("tests/fixtures/pizza-slice.png"),
+    ),
+    (
+        "/tests/fixtures/robin.jpg",
+        read_img("tests/fixtures/robin.jpg"),
+    ),
+    (
+        "https://cdn2.hexlet.io/assets/menu.css",
+        some_content,
+    ),
+    (
+        "/assets/aplication.css",
+        some_content,
+    ),
+    (
+        "/courses",
+        some_content,
+    ),
+    (
+        "/professions/nodejs",
+        some_content,
+    ),
+    (
+        "https://js.stripe.com/v3/",
+        some_content,
+    ),
+    (
+        "https://ru.hexlet.io/packs/js/runtime.js",
+        some_content,
+    ),
+]
+
+with tempfile.TemporaryDirectory() as temp_dir:
+
+    with requests_mock.Mocker() as mock:
+        for src, expected_content in srcs:
+            mock.get(
+                urljoin("https://ru.hexlet.io/courses", src), content=expected_content
+            )
+
+        mock.get(
+            "https://ru.hexlet.io/courses",
+            text=read_html("tests/fixtures/complex_page_before.html"),
+        )
+
+        filepath = download("https://ru.hexlet.io/courses", temp_dir)
+
+        soup = BeautifulSoup(
+            read_html("tests/fixtures/complex_page_after.html"), "html.parser"
+        )
+
+        with open(filepath, "r") as downloaded_page:
+            print(downloaded_page.read())
+            print("\n")
+            print(soup.prettify(formatter="html5"))
+            assert downloaded_page.read() == soup.prettify(formatter="html5")
