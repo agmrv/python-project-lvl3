@@ -1,5 +1,6 @@
 # coding=utf-8
 import re
+import logging
 from os import path, mkdir
 from urllib.parse import urlparse, urljoin
 
@@ -9,6 +10,8 @@ from bs4 import BeautifulSoup
 
 # poetry run page-loader
 # --output /home/agmrv/python-project-lvl3/tmp https://ru.hexlet.io/courses
+
+logging.basicConfig(level=logging.INFO)
 
 tags = {"script": "src", "link": "href", "img": "src"}
 
@@ -26,6 +29,7 @@ def normilize_str(string: str) -> str:
 
 
 def download(url, output_path):
+    logging.info("Начата загрузка страницы.")
 
     if not path.exists(output_path):
         raise FileExistsError(f"directory '{output_path}' not found")
@@ -48,13 +52,19 @@ def download(url, output_path):
     with open(filepath, "w") as file_object:
         file_object.write(soup.prettify(formatter="html5"))
 
+    logging.info("Загрузка страницы завершена.")
     return filepath
 
 
 def download_resources(soup, files_dirpath, dirname, netloc, url):
     resources = filter(lambda r: is_local(r, url), soup.find_all(tags.keys()))
+
+    logging.info("Начата загрузка ресурсов страницы.")
+
     for resource in resources:
         src = resource.get(tags.get(resource.name))
+        if not src:
+            continue
         root, ext = path.splitext(src)
         resource_filename = "{0}-{1}{2}".format(
             normilize_str(netloc),
@@ -72,6 +82,8 @@ def download_resources(soup, files_dirpath, dirname, netloc, url):
         resource_filepath = path.join(files_dirpath, resource_filename)
         with open(resource_filepath, "wb") as file_object:
             file_object.write(requests.get(urljoin(url, src)).content)
+
+    logging.info("Загрузка ресурсов страницы завершена.")
 
 
 def is_local(element, local_url):
