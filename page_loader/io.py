@@ -4,6 +4,7 @@ import logging
 from os import path, mkdir
 from urllib.parse import urlparse, urljoin
 
+from progress.bar import Bar
 import requests
 
 from bs4 import BeautifulSoup
@@ -11,7 +12,7 @@ from bs4 import BeautifulSoup
 # poetry run page-loader
 # --output /home/agmrv/python-project-lvl3/tmp https://ru.hexlet.io/courses
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 tags = {"script": "src", "link": "href", "img": "src"}
 
@@ -61,13 +62,16 @@ def download(url, output_path):
 
 
 def download_resources(soup, files_dirpath, dirname, netloc, url):
-    resources = filter(lambda r: is_local(r, url), soup.find_all(tags.keys()))
+    resources = list(filter(lambda r: is_local(r, url), soup.find_all(tags.keys())))
+    if not resources:
+        return
 
     logging.info("Начата загрузка ресурсов страницы.")
-
+    bar = Bar("Downloading", max=len(resources))
     for resource in resources:
         src = resource.get(tags.get(resource.name))
         if not src:
+            bar.next()
             continue
         root, ext = path.splitext(src)
         resource_filename = "{0}-{1}{2}".format(
@@ -81,15 +85,19 @@ def download_resources(soup, files_dirpath, dirname, netloc, url):
         )
 
         if not ext:
+            bar.next()
             continue
 
         resource_filepath = path.join(files_dirpath, resource_filename)
         with open(resource_filepath, "wb") as file_object:
             file_object.write(requests.get(urljoin(url, src)).content)
 
+        bar.next()
+
+    bar.finish()
     logging.info("Загрузка ресурсов страницы завершена.")
 
 
-def is_local(element, local_url):
-    element_url = urljoin(local_url, element.get(tags.get(element.name)))
+def is_local(resource, local_url):
+    element_url = urljoin(local_url, resource.get(tags.get(resource.name)))
     return urlparse(element_url).netloc == urlparse(local_url).netloc

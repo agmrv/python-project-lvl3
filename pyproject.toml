@@ -18,6 +18,7 @@ repository = "https://github.com/agmrv/python-project-lvl3"
 python = "^3.6"
 requests = "^2.25.0"
 beautifulsoup4 = "^4.9.3"
+progress = "^1.5"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
