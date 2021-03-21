@@ -62,7 +62,12 @@ def download(url, output_path):
 
 
 def download_resources(soup, files_dirpath, dirname, netloc, url):
-    resources = list(filter(lambda r: is_local(r, url), soup.find_all(tags.keys())))
+    resources = list(
+        filter(
+            lambda r: is_local(r, url),
+            soup.find_all(tags.keys()),
+        )
+    )
     if not resources:
         return
 
