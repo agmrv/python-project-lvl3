@@ -29,8 +29,8 @@ test_filenames_data = [
 test_download_data = [
     (
         "https://ru.hexlet.io/courses/",
-        read_html("tests/fixtures/complex_page_before.html"),
-        read_html("tests/fixtures/complex_page_after.html"),
+        read_html("tests/fixtures/page_before.html"),
+        read_html("tests/fixtures/page_after.html"),
         [
             (
                 "ru-hexlet-io-courses_files/ru-hexlet-io-tests-fixtures-pizza-slice.png",
