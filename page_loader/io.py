@@ -41,6 +41,10 @@ def download(url, output_path):
     name = generate_filename(netloc, raw_path)
     filename, dirname = f"{name}.html", f"{name}_files"
     filepath = path.join(output_path, filename)
+
+    if path.exists(filepath):
+        logging.warning("Директория существует. Данные будут перезаписаны.")
+
     files_dirpath = path.join(output_path, dirname)
 
     if not path.exists(files_dirpath):
