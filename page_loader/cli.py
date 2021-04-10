@@ -10,6 +10,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Page Loader")
     parser.add_argument("url", type=str)
     parser.add_argument(
+        "-o",
         "--output",
         default=os.getcwd(),
         help="set the output path",
