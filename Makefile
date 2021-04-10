@@ -5,7 +5,7 @@ lint:
 	poetry run flake8 page_loader
 
 test:
-	poetry run pytest -v --verbose --cov=page_loader tests/
+	poetry run pytest -s -v --verbose --cov=page_loader tests/
 
 selfcheck:
 	poetry check
