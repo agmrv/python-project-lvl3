@@ -73,13 +73,13 @@ def download_resources(soup, files_dirpath, dirname, netloc, url):
     )
     if not resources:
         return
-
     logging.info("Начата загрузка ресурсов страницы.")
     bar = Bar("Downloading", max=len(resources))
     for resource in resources:
-        src = resource.get(tags.get(resource.name))
+        bar.next()
+        tag = tags.get(resource.name)
+        src = resource.get(tag)
         if not src:
-            bar.next()
             continue
         root, ext = path.splitext(src)
         resource_filename = "{0}-{1}{2}".format(
@@ -87,20 +87,12 @@ def download_resources(soup, files_dirpath, dirname, netloc, url):
             normilize_str(urlparse(root).path),
             ext or ".html",
         )
-        resource[tags.get(resource.name)] = "{0}/{1}".format(
-            dirname,
-            resource_filename,
-        )
 
-        if not ext:
-            bar.next()
-            continue
+        resource[tag] = "{0}/{1}".format(dirname, resource_filename)
 
         resource_filepath = path.join(files_dirpath, resource_filename)
         with open(resource_filepath, "wb") as file_object:
             file_object.write(requests.get(urljoin(url, src)).content)
-
-        bar.next()
 
     bar.finish()
     logging.info("Загрузка ресурсов страницы завершена.")
