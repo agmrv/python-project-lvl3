@@ -1,5 +1,6 @@
 # coding=utf-8
 import tempfile
+import os
 from os import path
 from urllib.parse import urlparse, urljoin
 
@@ -8,6 +9,11 @@ import requests_mock
 from bs4 import BeautifulSoup
 
 from page_loader.io import generate_filename, download
+
+
+def read_file(path: str) -> str:
+    with open(path, "r") as f:
+        return f.read()
 
 
 def read_html(path: str) -> str:
@@ -34,21 +40,21 @@ test_download_data = [
         [
             (
                 "ru-hexlet-io-courses_files/ru-hexlet-io-tests-fixtures-pizza-slice.png",
-                read_img("tests/fixtures/pizza-slice.png"),
+                read_img("tests/fixtures/page_files/pizza-slice.png"),
             ),
             (
                 "ru-hexlet-io-courses_files/ru-hexlet-io-tests-fixtures-robin.jpg",
-                read_img("tests/fixtures/robin.jpg"),
+                read_img("tests/fixtures/page_files/robin.jpg"),
             ),
         ],
         [
             (
                 "/tests/fixtures/pizza-slice.png",
-                read_img("tests/fixtures/pizza-slice.png"),
+                read_img("tests/fixtures/page_files/pizza-slice.png"),
             ),
             (
                 "/tests/fixtures/robin.jpg",
-                read_img("tests/fixtures/robin.jpg"),
+                read_img("tests/fixtures/page_files/robin.jpg"),
             ),
             ("https://cdn2.hexlet.io/assets/menu.css", ""),
             ("/assets/application.css", ""),
@@ -57,6 +63,30 @@ test_download_data = [
             ("/professions/nodejs", ""),
             ("https://js.stripe.com/v3/", ""),
             ("https://ru.hexlet.io/packs/js/runtime.js", ""),
+        ],
+    ),
+    (
+        "http://localhost/blog/about",
+        read_html("tests/fixtures/localhost-blog-about_before.html"),
+        read_html("tests/fixtures/localhost-blog-about_after.html"),
+        [],
+        [
+            ("/blog/about/assets/styles.css", ""),
+            ("/blog/about", ""),
+            ("/photos/me.jpg", ""),
+            ("http://localhost/assets/scripts.js", ""),
+        ],
+    ),
+    (
+        "https://site.com/blog/about",
+        read_html("tests/fixtures/site-com-blog-about_before.html"),
+        read_html("tests/fixtures/site-com-blog-about_after.html"),
+        [],
+        [
+            ("/blog/about/assets/styles.css", ""),
+            ("/blog/about", ""),
+            ("/photos/me.jpg", ""),
+            ("https://site.com/assets/scripts.js", ""),
         ],
     ),
 ]
@@ -90,7 +120,7 @@ def test_create_file_and_directory(url, name):
 @pytest.mark.parametrize(
     "url, page_before, page_after, expected_content_paths, srcs",
     test_download_data,
-    ids=["test"],
+    ids=["page", "localhost-blog-about", "site-com-blog-about"],
 )
 def test_download_page(url, page_before, page_after, expected_content_paths, srcs):
     with tempfile.TemporaryDirectory() as temp_dir:
