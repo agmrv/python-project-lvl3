@@ -12,11 +12,11 @@ def main():
     try:
         file_path = download(args.url, args.output)
         print(file_path)
-    except FileExistsError as exists_error:
-        logging.error(exists_error)
+    except (FileExistsError, ValueError) as error:
+        logging.error(error)
         sys.exit(1)
-    except ValueError as value_error:
-        logging.error(value_error)
+    except Exception as error:
+        logging.error(f"Страница не загружена: {error}")
         sys.exit(1)
 
 

@@ -48,12 +48,13 @@ def download(url, output_path):
 
     files_dirpath = path.join(output_path, dirname)
 
-    if not path.exists(files_dirpath):
-        mkdir(files_dirpath)
-
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
+
+    if not path.exists(files_dirpath):
+        mkdir(files_dirpath)
     download_resources(soup, files_dirpath, dirname, netloc, url)
+
     with open(filepath, "w") as file_object:
         file_object.write(soup.prettify(formatter="html5"))
 
