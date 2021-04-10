@@ -49,7 +49,7 @@ def download(url, output_path):
     files_dirpath = path.join(output_path, dirname)
 
     response = requests.get(url)
-    if response.status_code in {404, 500}:
+    if response.status_code != 200:
         raise ConnectionError(f"Ошибка {response.status_code}")
     soup = BeautifulSoup(response.content, "html.parser")
 
