@@ -18,6 +18,8 @@ def main():
     except Exception as error:
         logging.error(f"Неизвестная ошибка: {error}")
         sys.exit(1)
+    else:
+        sys.exit(0)
 
 
 if __name__ == "__main__":
