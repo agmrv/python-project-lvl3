@@ -51,8 +51,9 @@ test_download_data = [
                 read_img("tests/fixtures/robin.jpg"),
             ),
             ("https://cdn2.hexlet.io/assets/menu.css", ""),
-            ("/assets/aplication.css", ""),
+            ("/assets/application.css", ""),
             ("/courses", ""),
+            ("/assets/professions/nodejs.png", ""),
             ("/professions/nodejs", ""),
             ("https://js.stripe.com/v3/", ""),
             ("https://ru.hexlet.io/packs/js/runtime.js", ""),
@@ -91,9 +92,7 @@ def test_create_file_and_directory(url, name):
     test_download_data,
     ids=["test"],
 )
-def test_download_page_content(
-    url, page_before, page_after, expected_content_paths, srcs
-):
+def test_download_page(url, page_before, page_after, expected_content_paths, srcs):
     with tempfile.TemporaryDirectory() as temp_dir:
         with requests_mock.Mocker() as mock:
             for src, expected_content in srcs:
