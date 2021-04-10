@@ -1,5 +1,6 @@
 # coding=utf-8
 import tempfile
+import os
 from os import path
 from urllib.parse import urlparse, urljoin
 
